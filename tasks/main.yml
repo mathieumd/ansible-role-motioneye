@@ -1,0 +1,105 @@
+---
+######################################################################
+# Packages
+######################################################################
+
+# See http://ffmpeg.org/download.html
+- name: Add FFmpeg PPA repository
+  apt_repository: repo="ppa:jon-severinsson/ffmpeg"
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install requirements
+  apt: name="{{ item }}" state=present
+       update_cache=yes cache_valid_time=86400
+  with_items:
+    - git
+    - python-tornado
+    - python-jinja2
+    - python-imaging
+    - motion
+    - ffmpeg
+    - v4l-utils
+
+- name: Install motionEye
+  git: repo=https://bitbucket.org/ccrisan/motioneye.git
+       dest="{{ motioneye_path }}"
+       version="{{ motioneye_version | default('HEAD') }}"
+  notify: Restart motioneye
+
+######################################################################
+# User
+######################################################################
+
+- name: Create user
+  user: name="{{ motioneye_user }}" group="{{ motioneye_group }}"
+        shell=/bin/sh
+        system=yes state=present
+
+######################################################################
+# System
+######################################################################
+
+- name: Deploy startup script
+  template: src=motioneye-startup.sh.j2 dest=/etc/init.d/motioneye
+            owner=root group=root mode=0775
+
+- name: Startup at boot
+  service: name=motioneye state=started enabled=yes
+
+######################################################################
+# Configuration
+######################################################################
+
+- name: Create motionEye folders
+  file: path="{{ item.n }}" state=directory
+        owner="{{ motioneye_user }}" group="{{ motioneye_group }}" mode="{{ item.m }}"
+  with_items:
+    - { n: "{{ motioneye_path}}/conf",    m: "0770" }
+    - { n: "{{ motioneye_path}}/run",     m: "0755" }
+    - { n: "{{ motioneye_path}}/log",     m: "0755" }
+    - { n: "{{ motioneye_media_path }}",  m: "0770" }
+
+- name: Create a basic settings.py
+  command: cp settings_default.py settings.py
+           chdir="{{ motioneye_path }}"
+           creates="{{ motioneye_path }}/settings.py"
+
+- name: Setup settings.py
+  lineinfile: dest="{{ motioneye_path }}/settings.py"
+              regexp="^{{ item.key }} ?="
+              line="{{ item.key }} = {{ item.value }}"
+  with_dict: motioneye_settings
+
+######################################################################
+# Plugins
+######################################################################
+
+- name: Install plugins requirements
+  apt: name="{{ item }}" state=present
+  with_items:
+    - libwww-perl # For lwp-request
+  when: motioneye_enable_when_away == true
+
+- name: Deploy Enable-when-Away script
+  copy: src="{{ item }}" dest="/opt/{{ item }}"
+        owner=root group=root mode=0775
+  with_items: enable_when_away.sh
+  when: motioneye_enable_when_away == true
+
+- name: Deploy Enable-when-Away configuration
+  template: src="{{ item }}.j2" dest="/opt/{{ item }}"
+            owner=root group=root mode=0664
+  with_items: enable_when_away.conf
+  when: motioneye_enable_when_away == true
+
+- name: Add Crontab for Enable-when-Away script
+  cron: name="Motion Enable-when-Away" job="/opt/enable_when_away.sh"
+        user=root state=present
+  when: motioneye_enable_when_away == true
+
+- name: Remove Crontab for Enable-when-Away script
+  cron: name="Motion Enable-when-Away"
+        user=root state=absent
+  when: motioneye_enable_when_away == false
+
+# vim: ft=ansible

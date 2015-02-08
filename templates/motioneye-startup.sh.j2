@@ -1,0 +1,66 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+PROGNAME="motionEye"
+PROGBIN={{ motioneye_path }}/motioneye.py
+USER={{ motioneye_user }}
+LOG={{ motioneye_path }}/log/motioneye.log
+
+if [ "$(whoami)" != "root" ]; then
+    echo "ERR: Must be run as root."
+    exit 1
+fi
+
+get_pid() {
+    ps ax |grep $PROGBIN |grep python |awk '{print $1}'
+}
+
+is_running() {
+    if [ "x$(get_pid)" != "x" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+do_start() {
+    if ! is_running; then
+        su -c "$PROGBIN > $LOG 2>&1 &" $USER
+    else
+        echo "WARN: Was already running."
+    fi
+}
+
+do_stop() {
+    PID=$(get_pid)
+    while [ "x$PID" != "x" ]; do
+        kill $PID
+        PID=$(get_pid)
+    done
+}
+
+case "$1" in
+    status)
+        if is_running; then
+            echo "$PROGNAME is running (pid=$(get_pid))."
+        else
+            echo "$PROGNAME is stopped."
+        fi
+        exit 0
+        ;;
+    start)
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    restart)
+        do_stop
+        do_start
+        ;;
+    *)
+        echo "ERR: Must specify an action: status, start, stop or restart."
+        exit 1
+        ;;
+esac
+

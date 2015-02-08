@@ -1,0 +1,36 @@
+---
+# Set the wanted version: either "HEAD" (dev) or a tag like "0.21". See the
+# Tags tab here:
+# https://bitbucket.org/ccrisan/motioneye/downloads#tag-downloads
+# motioneye_version: HEAD
+motioneye_version: "0.21"
+
+motioneye_user: motion
+motioneye_group: motion
+motioneye_path: /opt/motioneye
+
+motioneye_media_path: /srv/motioneye
+
+# Options to override into `settings.py`.
+# Note that the "litteral" string will be used, so if you want 'this', then it
+# must be write it as "'this'" below.
+motioneye_settings:
+  # MEDIA_PATH: "os.path.abspath(os.path.join(PROJECT_PATH, 'media'))"
+  MEDIA_PATH: "'{{ motioneye_media_path }}'"
+  # LISTEN: "'0.0.0.0'"
+  # PORT: "8765"
+
+######################################################################
+# Plugins
+######################################################################
+
+# Shall we install the presence switcher Enable-when-Away (ewa)?
+motioneye_enable_when_away: no
+# Space separated list of monitors ID (thread-n.conf) to handle:
+# motioneye_ewa_monitors_id: "1"
+# Motion will not record while these hosts replies.
+# motioneye_ewa_known_hosts:
+#   - ip: "192.168.0.100"
+#     mac: "aa:bb:cc:dd:ee:ff"
+
+# vim: ft=ansible

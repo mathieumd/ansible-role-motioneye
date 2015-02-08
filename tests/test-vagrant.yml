@@ -1,0 +1,7 @@
+---
+- hosts: motioneye
+  remote_user: vagrant
+  roles:
+      - ../../ansible-role-motioneye
+
+# vim: ft=ansible

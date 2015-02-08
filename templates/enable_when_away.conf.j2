@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+MOTIONEYE_DIR="{{ motioneye_path }}"
+
+# Network coordinates of the smartphone(s) to check for.
+# Comma (,) or space ( ) separated.
+IPS="{% for host in motioneye_ewa_known_hosts %}{{ host.ip }} {% endfor %}"
+MACS="{% for host in motioneye_ewa_known_hosts %}{{ host.mac }} {% endfor %}"
+
+# Space separated list of Monitor IDs to manage.
+MONITOR_IDS="{{ motioneye_ewa_monitors_id }}"
+
+# URL to request to pause/start the detection of a given monitor ID.
+# lwp-request http://${MONITOR_IP}:${MONITOR_PORT}/${MONITOR_ID}/detection/pause
+MONITOR_IP="127.0.0.1"
+
+# If port is left commented it will be retrieved from conf/motion.conf.
+#MONITOR_PORT=
+
+# Log to syslog?
+LOG=1
+
