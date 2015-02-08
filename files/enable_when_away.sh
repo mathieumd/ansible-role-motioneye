@@ -1,12 +1,11 @@
 #!/bin/bash
-# {{ ansible_managed }}
 ######################################################################
-# Creation: 2014-10-24 - Mathieu MD
+# Creation: 2012-07-28 - Mathieu MD
 # Changelog:
-#   2012-07-28 - MathieuMD: Added separate network handling
-#   2012-08-26 - MathieuMD: Split config to separate .conf file
-#   2013-05-04 - MathieuMD: Absolute path to arp
-#   2014-10-24 - MathieuMD: Switched from ZoneMinder to motionEye
+#   2012-07-28 - Mathieu: Added separate network handling
+#   2012-08-26 - Mathieu: Split config to separate .conf file
+#   2013-05-04 - Mathieu: Absolute path to arp
+#   2014-10-24 - Mathieu: Switched from ZoneMinder to motionEye
 ######################################################################
 # Description:
 #
