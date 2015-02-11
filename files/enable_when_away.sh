@@ -31,7 +31,7 @@ DEBUG=${DEBUG:-0}
 myname="$(basename $0)"
 CONF="$(dirname $0)/$(echo $myname|sed 's/.sh/.conf/')"
 
-ARP=$(which arp)
+ARP=/usr/sbin/arp
 
 ######################################################################
 
