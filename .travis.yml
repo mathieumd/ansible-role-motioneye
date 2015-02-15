@@ -18,15 +18,24 @@ install:
 
 before_script:
   # Create/Append ansible.cfg to pick up roles path.
-  - echo -e "[defaults]\nroles_path = ../" >> ansible.cfg
+  - 'echo -e "
+    [defaults]\n
+    roles_path = ../
+    " >> ansible.cfg'
 
   # Create test playbook.
-  - 'echo -e "---\n- hosts: localhost\n  remote_user: travis\n" > $PLAYBOOK'
-  - 'echo -e "  roles:\n    - ${TRAVIS_REPO_SLUG/*\//}" >> $PLAYBOOK'
+  - >
+    'echo -e "
+    ---\n
+    - hosts: localhost\n
+      remote_user: travis\n
+      roles:\n
+        - ${TRAVIS_REPO_SLUG/*\//}
+    " >> $PLAYBOOK'
 
 script:
   # Check shell scripts
-  - set -e ; for i in files/*.sh; do bash -n $i ;done
+  - set -e ; for i in files/*.sh ; do bash -n $i ; done
 
   # Check the role/playbook's syntax.
   - ansible-playbook -i $INVENTORY $PLAYBOOK --syntax-check
