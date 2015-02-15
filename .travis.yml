@@ -19,18 +19,20 @@ install:
 before_script:
   # Create/Append ansible.cfg to pick up roles path.
   - |
-    echo "[defaults]
+    cat <<EOF >> ansible.cfg
+    [defaults]
     roles_path = ../
-    " >> ansible.cfg
+    EOF
 
   # Create test playbook.
   - |
-    echo -e "---
+    cat <<EOF > $PLAYBOOK
+    ---
     - hosts: localhost
       remote_user: travis
       roles:
         - ${TRAVIS_REPO_SLUG/*\//}
-    " >> $PLAYBOOK
+    EOF
 
 script:
   # Check shell scripts
