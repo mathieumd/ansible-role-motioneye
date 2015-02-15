@@ -21,8 +21,8 @@ before_script:
   - echo -e "[defaults]\nroles_path = ../" >> ansible.cfg
 
   # Create test playbook.
-  - echo -e "---\n- hosts: localhost\n  remote_user: travis\n" > $PLAYBOOK
-  - echo -e "  roles:\n    - ${TRAVIS_REPO_SLUG/*\//}\n" >> $PLAYBOOK
+  - 'echo -e "---\n- hosts: localhost\n  remote_user: travis\n" > $PLAYBOOK'
+  - 'echo -e "  roles:\n    - ${TRAVIS_REPO_SLUG/*\//}" >> $PLAYBOOK'
 
 script:
   # Check shell scripts
