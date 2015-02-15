@@ -4,8 +4,9 @@ language: python
 python: "2.7"
 
 env:
-  - PLAYBOOK=tests/test-travis.yml
-    INVENTORY=tests/inventory-travis
+  - PLAYBOOK=travis.yml
+    INVENTORY="localhost,"
+    # The trailing "," is required if it's not a filename but an hostname.
 
 before_install:
   # Make sure everything's up to date.
@@ -14,24 +15,40 @@ before_install:
 install:
   # Install Ansible.
   - pip install ansible
-  # Add ansible.cfg to pick up roles path.
-  - "{ echo '[defaults]'; echo 'roles_path = ../'; } >> ansible.cfg"
-  # Automatically create the inventory
-  - "echo 'localhost' > $INVENTORY"
+
+  # Create/Append ansible.cfg to pick up roles path.
+  - >
+    cat <<EOF >> ansible.cfg
+    [defaults]
+    roles_path = ../
+    EOF
+
+  # Create test playbook.
+  - >
+    cat <<EOF > $PLAYBOOK
+    ---
+    - hosts: localhost
+      remote_user: travis
+      roles:
+        - ${TRAVIS_REPO_SLUG/*\//}
+    EOF
 
 script:
+  # Check shell scripts
+  - set -e ; for i in files/*.sh; do bash -n $i ;done
+
   # Check the role/playbook's syntax.
-  - "ansible-playbook -i $INVENTORY $PLAYBOOK --syntax-check"
+  - ansible-playbook -i $INVENTORY $PLAYBOOK --syntax-check
 
   # Run the role/playbook with ansible-playbook.
-  - "ansible-playbook -i $INVENTORY $PLAYBOOK --connection=local --sudo"
+  - ansible-playbook -i $INVENTORY $PLAYBOOK --connection=local --sudo -vvvv
 
   # Run the role/playbook again, checking to make sure it's idempotent.
   - >
     ansible-playbook -i $INVENTORY $PLAYBOOK --connection=local --sudo
     | grep -q 'changed=0.*failed=0'
-    && (echo 'Idempotence test: pass' && exit 0)
-    || (echo 'Idempotence test: fail' && exit 1)
+      && (echo 'Idempotence test: pass' && exit 0)
+      || (echo 'Idempotence test: fail' && exit 1)
 
   # Request a page via the web server, to make sure it's running and responds.
   # - curl --head --insecure https://localhost/

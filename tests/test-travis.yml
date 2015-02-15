@@ -1,7 +1,0 @@
----
-- hosts: localhost
-  remote_user: travis
-  roles:
-    - ansible-role-motioneye # Must be the name of the Git repo
-
-# vim: ft=ansible
