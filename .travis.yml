@@ -18,13 +18,14 @@ install:
 
 before_script:
   # Create/Append ansible.cfg to pick up roles path.
-  - 'echo -e "
+  - |
+    'echo -e "
     [defaults]\n
     roles_path = ../
     " >> ansible.cfg'
 
   # Create test playbook.
-  - >
+  - |
     'echo -e "
     ---\n
     - hosts: localhost\n
