@@ -12,26 +12,24 @@ before_install:
   # Make sure everything's up to date.
   - sudo apt-get update
 
-install:
+install: |
   # Install Ansible.
-  - pip install ansible
+  pip install ansible
 
   # Create/Append ansible.cfg to pick up roles path.
-  - >
-    cat <<EOF >> ansible.cfg
-    [defaults]
-    roles_path = ../
-    EOF
+  cat <<EOF >> ansible.cfg
+  [defaults]
+  roles_path = ../
+  EOF
 
   # Create test playbook.
-  - >
-    cat <<EOF > $PLAYBOOK
-    ---
-    - hosts: localhost
-      remote_user: travis
-      roles:
-        - ${TRAVIS_REPO_SLUG/*\//}
-    EOF
+  cat <<EOF > $PLAYBOOK
+  ---
+  - hosts: localhost
+    remote_user: travis
+    roles:
+      - ${TRAVIS_REPO_SLUG/*\//}
+  EOF
 
 script:
   # Check shell scripts
